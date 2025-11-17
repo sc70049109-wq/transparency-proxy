@@ -1,54 +1,52 @@
-#!/usr/bin/env python3
-from flask import Flask, jsonify, send_from_directory, request
-import subprocess, random, socket
+from flask import Flask, jsonify
+import docker
+import random
 
-app = Flask(__name__, static_folder='static', static_url_path='')
+app = Flask(__name__)
+client = docker.from_env()
 
-# Serve frontend
-@app.route('/')
-def index():
-    return send_from_directory('static', 'index.html')
+# Change this to a valid Docker image
+CHROME_IMAGE = "lscr.io/linuxserver/chrome:latest"
 
-@app.route('/proxy.html')
-def proxy():
-    return send_from_directory('static', 'proxy.html')
+# Port range to assign to new containers
+PORT_START = 5900
+PORT_END = 5999
 
-@app.route('/<path:filename>')
-def serve_static(filename):
-    allowed = ['style.css','script.js']
-    if filename in allowed:
-        return send_from_directory('static', filename)
-    return "Not found", 404
-
-# Helper to pick a free host port
 def find_free_port():
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.bind(('',0))
-    port = s.getsockname()[1]
-    s.close()
-    return port
+    """Randomly pick a port for the container"""
+    return random.randint(PORT_START, PORT_END)
 
-# Start a Chromium Docker container
-@app.route('/start', methods=['POST'])
-def start():
-    host_port = find_free_port()
-    container_name = f"chromium-{random.randint(1000,9999)}"
-    image = "jlesage/chrome:latest"
+@app.route("/start", methods=["POST"])
+def start_container():
+    port = find_free_port()
+    container_name = f"transparency_chrome_{port}"
 
     try:
-        subprocess.run([
-            "docker","run","-d",
-            "--name", container_name,
-            "-p", f"{host_port}:5800",
-            image
-        ], check=True)
-        host = request.host.split(':')[0]
-        if host in ("0.0.0.0",""):
-            host = "localhost"
-        url = f"http://{host}:{host_port}/"
-        return jsonify(status="ok", url=url, container_id=container_name)
-    except subprocess.CalledProcessError as e:
-        return jsonify(status="error", error=str(e)), 500
+        container = client.containers.run(
+            CHROME_IMAGE,
+            name=container_name,
+            detach=True,
+            ports={"3001/tcp": port},  # 3001 is the exposed GUI port in LS Chrome
+            shm_size="2g",             # shared memory for Chromium
+        )
+    except docker.errors.APIError as e:
+        return jsonify({"error": str(e)}), 500
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8000)
+    # Return the URL to open in browser
+    url = f"http://localhost:{port}"
+    return jsonify({"url": url, "container": container_name})
+
+@app.route("/stop/<container_name>", methods=["POST"])
+def stop_container(container_name):
+    try:
+        container = client.containers.get(container_name)
+        container.stop()
+        container.remove()
+        return jsonify({"status": "stopped"})
+    except docker.errors.NotFound:
+        return jsonify({"error": "container not found"}), 404
+    except docker.errors.APIError as e:
+        return jsonify({"error": str(e)}), 500
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=8000, debug=True)
