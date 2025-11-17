@@ -1,0 +1,104 @@
+:root {
+    --light-bg: #ffffff;
+    --dark-bg: #000000;
+    --glass-bg: rgba(255, 255, 255, 0.18);
+    --glass-bg-dark: rgba(0, 0, 0, 0.25);
+    --border-light: rgba(255, 255, 255, 0.4);
+    --border-dark: rgba(255, 255, 255, 0.1);
+}
+
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro", sans-serif;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background 0.4s ease, color 0.4s ease;
+}
+
+body.light {
+    background: var(--light-bg);
+    color: #000;
+}
+
+body.dark {
+    background: var(--dark-bg);
+    color: #fff;
+}
+
+#theme-toggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 20;
+}
+
+.center {
+    text-align: center;
+}
+
+.title {
+    font-size: 3rem;
+    font-weight: 700;
+    backdrop-filter: blur(12px);
+    background: var(--glass-bg);
+    padding: 20px 40px;
+    border-radius: 30px;
+    border: 1px solid var(--border-light);
+}
+
+.dark .title {
+    background: var(--glass-bg-dark);
+    border-color: var(--border-dark);
+}
+
+.glass-button {
+    margin-top: 30px;
+    padding: 18px 40px;
+    font-size: 1.4rem;
+    border-radius: 18px;
+    border: 1px solid var(--border-light);
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.dark .glass-button {
+    background: var(--glass-bg-dark);
+    border-color: var(--border-dark);
+}
+
+.glass-button:hover {
+    transform: scale(1.05);
+}
+
+/* Blur Spinner */
+.loader-container {
+    text-align: center;
+}
+
+.blur-spinner {
+    width: 180px;
+    height: 180px;
+    margin: 0 auto 20px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    animation: spin 5s linear infinite;
+    filter: blur(2px);
+}
+
+.blur-spinner img {
+    width: 80px;
+    height: 80px;
+    border-radius: 22%;
+    object-fit: cover;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
