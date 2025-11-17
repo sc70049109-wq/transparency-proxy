@@ -1,16 +1,9 @@
-// Dark / Light mode toggle
-const themeBtn = document.getElementById("theme-btn");
-themeBtn.addEventListener("click", () => {
-  document.body.classList.toggle("light");
-  document.body.classList.toggle("dark");
-});
-
-// Open Transparency Proxy button
-const enterBtn = document.getElementById("enter-btn");
-enterBtn.addEventListener("click", () => {
-  // Open proxy.html in a new tab
-  window.open("proxy.html", "_blank");
-
-  // Redirect to Flask backend route that launches Chromium
-  window.location.href = "/open";
+// Dark / light mode toggle
+const themeBtn = document.getElementById("theme-toggle");
+themeBtn?.addEventListener("click", () => {
+    if(document.body.style.filter === "brightness(1.2)") {
+        document.body.style.filter = "brightness(1)";
+    } else {
+        document.body.style.filter = "brightness(1.2)";
+    }
 });
