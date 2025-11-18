@@ -1,44 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Transparency Proxy</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="/static/style.css" />
 </head>
 <body>
   <div class="container">
+    <!-- Card base glass -->
     <div class="glass">
       <div class="card-header">
-        <div class="icon glass">🦊</div>
+        <div class="icon glass">🖥️</div>
         <div>
-          <h3 class="card-title">Your Cloud Firefox Browser</h3>
-          <p class="card-subtitle">Click below to open your cloud Firefox browser</p>
+          <h3 class="card-title">Transparency Proxy</h3>
+          <p class="card-subtitle">Cloud Firefox Browser</p>
         </div>
       </div>
-      <a href="/proxy" class="btn-glass glass">Enter Transparency Proxy</a>
+      <div class="card-content">
+        <p>Click below to open your cloud Firefox browser.</p>
+        <a href="/open-firefox" class="btn-glass glass">Enter Transparency Proxy</a>
+      </div>
     </div>
 
-    <!-- Example iOS 26 Cards -->
+    <div class="glass">
+      <div class="card-header">
+        <div class="icon glass">✨</div>
+        <div>
+          <h3 class="card-title">Glassmorphism UI</h3>
+          <p class="card-subtitle">iOS 26 inspired</p>
+        </div>
+      </div>
+      <div class="card-content">
+        <p>
+          The glass effect relies on transparency, background blur, and thin edges to create depth.
+        </p>
+      </div>
+    </div>
+
     <div class="glass">
       <div class="card-header">
         <div class="icon glass">🎵</div>
         <div>
-          <h3 class="card-title">Music Player</h3>
-          <p class="card-subtitle">Current Song Info</p>
+          <h3 class="card-title">Music Widget</h3>
+          <p class="card-subtitle">iOS style</p>
         </div>
       </div>
       <div class="music-widget glass">
         <div class="album-cover">♪</div>
         <div style="flex: 1">
-          <div style="color: white; font-weight: 500">Song Title</div>
-          <div style="color: rgba(255,255,255,0.7); font-size: 14px">Artist</div>
+          <div style="color: white; font-weight: 500">Current Song</div>
+          <div style="color: rgba(255, 255, 255, 0.7); font-size: 14px">Artist Name</div>
         </div>
         <button class="play-btn">▶</button>
       </div>
     </div>
   </div>
 
-  <script src="script.js"></script>
+  <script src="/static/script.js"></script>
 </body>
 </html>
