@@ -1,31 +1,16 @@
-from flask import Flask, redirect, send_from_directory, request, render_template
-import subprocess
-import os
+from flask import Flask, send_from_directory
 
+app = Flask(__name__, static_folder="static")
 
-app = Flask(__name__)
+@app.route("/")
+def root():
+    # Serve /static/index.html as the homepage
+    return send_from_directory("static", "index.html")
 
+@app.route("/<path:path>")
+def static_proxy(path):
+    # Serve any file inside /static
+    return send_from_directory("static", path)
 
-@app.route('/')
-def index():
-return render_template('index.html')
-
-
-@app.route('/launch')
-def launch():
-url = request.args.get('url', '')
-if url:
-subprocess.Popen([
-'google-chrome', '--headless=new', '--autoplay-policy=no-user-gesture-required', url
-])
-return f"Launching Chromium with: {url}"
-return "No URL provided."
-
-
-@app.route('/static/<path:path>')
-def static_files(path):
-return send_from_directory('static', path)
-
-
-if __name__ == '__main__':
-app.run(host='0.0.0.0', port=5000)
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=8000)
