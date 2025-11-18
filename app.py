@@ -1,40 +1,31 @@
-from flask import Flask, redirect, send_from_directory
+from flask import Flask, redirect, send_from_directory, request, render_template
 import subprocess
+import os
 
-app = Flask(__name__, static_folder="static")
 
-CHROME_PORT = 3001
-DOCKER_NAME = "transparency-chrome"
-DOCKER_IMAGE = "lscr.io/linuxserver/chromium:latest"
+app = Flask(__name__)
 
-@app.route("/")
+
+@app.route('/')
 def index():
-    return send_from_directory("static", "index.html")
+return render_template('index.html')
 
-@app.route("/open")
-def open_proxy():
-    # Check if container is running
-    try:
-        result = subprocess.run(
-            ["docker", "inspect", "-f", "{{.State.Running}}", DOCKER_NAME],
-            capture_output=True, text=True, check=True
-        )
-        running = result.stdout.strip() == "true"
-    except subprocess.CalledProcessError:
-        running = False
 
-    # Start container if not running
-    if not running:
-        subprocess.run([
-            "docker", "run", "-d",
-            "--name", DOCKER_NAME,
-            "-p", f"{CHROME_PORT}:5800",
-            "--shm-size=2g",
-            DOCKER_IMAGE
-        ], check=True)
+@app.route('/launch')
+def launch():
+url = request.args.get('url', '')
+if url:
+subprocess.Popen([
+'google-chrome', '--headless=new', '--autoplay-policy=no-user-gesture-required', url
+])
+return f"Launching Chromium with: {url}"
+return "No URL provided."
 
-    # Redirect to running Chromium
-    return redirect(f"http://localhost:{CHROME_PORT}")
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8000)
+@app.route('/static/<path:path>')
+def static_files(path):
+return send_from_directory('static', path)
+
+
+if __name__ == '__main__':
+app.run(host='0.0.0.0', port=5000)
