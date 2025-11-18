@@ -1,21 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Transparency Proxy</title>
-<link rel="stylesheet" href="/static/style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transparency Proxy</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="container">
-<h1>Transparency Proxy</h1>
-<p>Enter a URL to open in headless Chromium:</p>
 
+<div class="center-container">
+    <h1 class="title">Transparency Proxy</h1>
 
-<form action="/launch" method="get">
-<input type="text" name="url" placeholder="https://example.com" required />
-<button type="submit">Open</button>
-</form>
+    <button id="enter-btn">Enter Transparency Proxy</button>
 </div>
+
+<script src="script.js"></script>
 </body>
 </html>
