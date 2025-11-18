@@ -1,28 +1,25 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const btn = document.getElementById("enter-proxy-btn");
+document.addEventListener('DOMContentLoaded', () => {
+    const enterBtn = document.getElementById('enter-proxy');
 
-  btn.addEventListener("click", async (e) => {
-    e.preventDefault();
+    enterBtn.addEventListener('click', async () => {
+        // Open blank tab first
+        const newTab = window.open('about:blank', '_blank');
 
-    // Open about:blank first
-    const newTab = window.open("about:blank", "_blank");
+        try {
+            const res = await fetch('/open-firefox');
+            const data = await res.json();
 
-    try {
-      const response = await fetch("/open-firefox");
-      if (!response.ok) throw new Error("Failed to start Firefox container");
-
-      const data = await response.json();
-      if (data.url) {
-        // Navigate the new tab to the container URL
-        newTab.location.href = data.url;
-      } else {
-        newTab.close();
-        alert("Failed to get Firefox URL from backend.");
-      }
-    } catch (err) {
-      newTab.close();
-      alert(`Error opening Firefox container: ${err.message}`);
-      console.error(err);
-    }
-  });
+            // Inject iframe pointing to container
+            const iframe = newTab.document.createElement('iframe');
+            iframe.src = data.url;
+            iframe.style.width = '100vw';
+            iframe.style.height = '100vh';
+            iframe.style.border = 'none';
+            newTab.document.body.style.margin = '0';
+            newTab.document.body.appendChild(iframe);
+        } catch (err) {
+            newTab.document.body.innerHTML = `<h2 style="color:red;">Failed to start Firefox container. Check console for details.</h2>`;
+            console.error(err);
+        }
+    });
 });
