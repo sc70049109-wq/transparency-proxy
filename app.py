@@ -1,42 +1,50 @@
-from flask import Flask, redirect, send_from_directory
+from flask import Flask, send_from_directory, jsonify
 import docker
-import time
+import os
 
-app = Flask(__name__, static_folder='static', static_url_path='')
+app = Flask(__name__, static_folder='static')
 
-FIREFOX_CONTAINER_NAME = "transparency-firefox"
-FIREFOX_IMAGE = "jlesage/firefox:latest"
-FIREFOX_PORT = 3001  # VNC Web port
+DOCKER_IMAGE = "jlesage/firefox:latest"
+CONTAINER_NAME = "transparency-firefox"
+CONTAINER_PORT = 5800
+HOST_PORT = 3001
 
 client = docker.from_env()
-
-def start_firefox_container():
-    try:
-        container = client.containers.get(FIREFOX_CONTAINER_NAME)
-        if container.status != "running":
-            container.start()
-            time.sleep(5)
-    except docker.errors.NotFound:
-        client.containers.run(
-            FIREFOX_IMAGE,
-            name=FIREFOX_CONTAINER_NAME,
-            detach=True,
-            ports={'5800/tcp': FIREFOX_PORT},
-            shm_size='2g',
-            restart_policy={"Name": "always"}
-        )
-        time.sleep(5)
 
 # Serve index.html at root
 @app.route('/')
 def index():
-    return app.send_static_file('index.html')
+    return send_from_directory(app.static_folder, 'index.html')
+
+# Serve proxy.html if needed
+@app.route('/proxy')
+def proxy():
+    return send_from_directory(app.static_folder, 'proxy.html')
 
 # Open Firefox container
 @app.route('/open-firefox')
 def open_firefox():
-    start_firefox_container()
-    return redirect(f"http://localhost:{FIREFOX_PORT}")
+    # Check if container exists
+    try:
+        container = client.containers.get(CONTAINER_NAME)
+        if container.status != 'running':
+            container.start()
+    except docker.errors.NotFound:
+        # Run new container
+        container = client.containers.run(
+            DOCKER_IMAGE,
+            name=CONTAINER_NAME,
+            ports={f'{CONTAINER_PORT}/tcp': HOST_PORT},
+            shm_size='2g',
+            detach=True
+        )
+    url = f"http://localhost:{HOST_PORT}/"
+    return jsonify({'url': url})
+
+# Serve all static files
+@app.route('/static/<path:path>')
+def send_static(path):
+    return send_from_directory(app.static_folder, path)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000)
